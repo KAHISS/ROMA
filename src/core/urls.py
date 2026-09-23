@@ -21,12 +21,9 @@ from django.conf import settings
 from core import settings
 
 urlpatterns = [
-    path('', include('apps.catalog.urls', namespace='catalog')),
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('inventory/', include('apps.inventory.urls', namespace='inventory')),
-    path('users/', include('apps.users.urls', namespace='users')),
-    path('sales/', include('apps.sales.urls', namespace='sales')),
+    path('inventory/', include('apps.inventory.urls', namespace="inventory"))
 ]
 
 if settings.DEBUG:

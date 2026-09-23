@@ -19,6 +19,9 @@ down:
 makemigrations:
     uv run python {{main}} makemigrations
 
+migrate:
+    uv run python {{main}} migrate
+
 newapp name:
     uv run python {{main}} startapp {{name}} src/apps/{{name}}
 

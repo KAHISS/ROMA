@@ -1,0 +1,91 @@
+{% extends "global/pages/base_administration.html" %}
+
+{% block title %}Painel · Estoque{% endblock %}
+{% block page_title %}Estoque{% endblock %}
+{% block nav_estoque %}bg-neutral-800 text-white border-amber-500{% endblock %}
+
+{% block content %}
+<section class="section" id="estoque">
+  <div class="border border-gray-200 dark:border-neutral-800 rounded-lg bg-white dark:bg-neutral-900">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 px-5 py-4 border-b border-gray-200 dark:border-neutral-800">
+      <div class="flex flex-col">
+        <h2 class="text-base font-semibold">Estoque</h2>
+        <span class="text-xs text-gray-500 dark:text-neutral-400">{{ total_itens|default:"0" }} produtos</span>
+      </div>
+      <button class="inline-flex items-center justify-center gap-1.5 text-[13px] font-semibold px-3.5 py-2 rounded-md bg-amber-500 text-black hover:bg-amber-400 transition-colors">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+        Novo produto
+      </button>
+    </div>
+    
+    <div class="px-5 pt-5">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-5">
+        <!-- KPI: Quantidade de produtos -->
+        <div class="border border-gray-200 dark:border-neutral-800 rounded-lg p-4 bg-white dark:bg-neutral-900">
+          <div class="flex items-start justify-between mb-3">
+            <div class="text-[12.5px] text-gray-500 dark:text-neutral-400 font-medium">Quantidade de produtos</div>
+            <div class="w-8 h-8 rounded-md bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+            </div>
+          </div>
+          <div class="font-mono text-2xl font-semibold tracking-tight">{{ total_unidades|default:"0" }}</div>
+          <div class="text-xs mt-2 font-medium text-gray-500 dark:text-neutral-400">{{ total_itens|default:"0" }} itens cadastrados</div>
+        </div>
+
+        <!-- KPI: Custo total em estoque -->
+        <div class="border border-gray-200 dark:border-neutral-800 rounded-lg p-4 bg-white dark:bg-neutral-900">
+          <div class="flex items-start justify-between mb-3">
+            <div class="text-[12.5px] text-gray-500 dark:text-neutral-400 font-medium">Custo total em estoque</div>
+            <div class="w-8 h-8 rounded-md bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>
+            </div>
+          </div>
+          <div class="font-mono text-2xl font-semibold tracking-tight">{{ custo_total|default:"R$ 0,00" }}</div>
+          <div class="text-xs mt-2 font-medium text-gray-500 dark:text-neutral-400">valor investido em compra</div>
+        </div>
+
+        <!-- KPI: Potencial total de venda -->
+        <div class="border border-gray-200 dark:border-neutral-800 rounded-lg p-4 bg-white dark:bg-neutral-900">
+          <div class="flex items-start justify-between mb-3">
+            <div class="text-[12.5px] text-gray-500 dark:text-neutral-400 font-medium">Potencial total de venda</div>
+            <div class="w-8 h-8 rounded-md bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            </div>
+          </div>
+          <div class="font-mono text-2xl font-semibold tracking-tight">{{ potencial_total|default:"R$ 0,00" }}</div>
+          <div class="text-xs mt-2 font-medium text-amber-700 dark:text-amber-400">se todo o estoque for vendido</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="p-5 pt-0 overflow-x-auto">
+      <table class="w-full min-w-[720px] text-sm border-collapse">
+        <thead>
+          <tr>
+            <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800">Produto</th>
+            <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-mono">SKU</th>
+            <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800">Categoria</th>
+            <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-mono">Quantidade</th>
+            <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-mono">Custo un.</th>
+            <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-mono">Preço</th>
+            <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800">Status</th>
+            <th class="border-b border-gray-200 dark:border-neutral-800"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for produto in produtos %}
+          {% include 'inventory/partials/row_product.html' %}
+          {% empty %}
+          <tr>
+            <td colspan="8" class="py-8 px-3.5 text-center text-gray-500 dark:text-neutral-400">Nenhum produto encontrado.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      
+      <!-- Paginador simples caso necessite via contexto (page_obj) -->
+      {% include "global/partials/pagination.html" %}
+    </div>
+  </div>
+</section>
+{% endblock %}

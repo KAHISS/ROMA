@@ -3,6 +3,7 @@ import environ
 from pathlib import Path
 from django.contrib.messages import constants
 
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(
@@ -12,13 +13,12 @@ env = environ.Env(
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-substitua-isso-no-env')
-
-DEBUG = env('DEBUG')
+FIELD_ENCRYPTION_KEY = env(
+    'FIELD_ENCRYPTION_KEY', default="v2CkK6mox9ZHj6_IAvhwUfCViFuuz4z59nZCjwphtAg")
+DEBUG = env('DEBUG', default="true")
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-AUTH_USER_MODEL = 'users.User'
 
 # Application definition
 
@@ -33,8 +33,7 @@ INSTALLED_APPS = [
     # my apps
     'apps.inventory',
     'apps.users',
-    'apps.sales'
-    'apps.dashboard'
+    'apps.sales',
 ]
 
 MIDDLEWARE = [
@@ -53,7 +52,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            BASE_DIR / 'base_templates',
+            BASE_DIR / 'base_templates'
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -69,19 +68,36 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 
+# Database
+# https://docs.djangoproject.com/en/6.1/ref/settings/#databases
+
 DATABASES = {
     'default': env.db('DATABASE_URL', default=f'sqlite:///{BASE_DIR}/db.sqlite3')
 }
 
+
+# Password validation
+# https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
+
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
 ]
 
 
 # Internationalization
+# https://docs.djangoproject.com/en/6.1/topics/i18n/
+
 LANGUAGE_CODE = 'pt-br'  # Mudei para português, já que estamos aqui
 TIME_ZONE = 'America/Sao_Paulo'  # Ajustado para o seu fuso
 
@@ -98,8 +114,6 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'  # Recomendado adicionar para produção
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 MESSAGE_TAGS = {
     constants.DEBUG: 'message-debug',
     constants.INFO: 'bg-blue-50 text-blue-800 border-blue-500',
@@ -113,16 +127,11 @@ CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
     'http://127.0.0.1',
 ])
 
-# --- Email ---
-EMAIL_BACKEND = env(
-    'EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
-EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
-EMAIL_PORT = env.int('EMAIL_PORT', default=587)
-EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
-EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL',
-                         default='JP Acessórios <no-reply@jpacessorios.com>')
+# Email
+# https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-# Necessário para montar o link absoluto de confirmação (ex: https://jpacessorios.com)
-SITE_URL = env('SITE_URL', default='http://localhost:8000')
+MAILERS = {
+    'default': {
+        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+    },
+}

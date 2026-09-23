@@ -1,0 +1,60 @@
+{% if objects.has_other_pages %}
+<div class="flex items-center justify-between gap-3 pt-4 mt-1 border-t border-gray-200 dark:border-neutral-800 flex-wrap">
+  <div class="text-xs text-gray-500 dark:text-neutral-400">
+    Exibindo 
+    <span class="font-medium text-gray-900 dark:text-neutral-200">{{ items.start_index }}</span> 
+    a 
+    <span class="font-medium text-gray-900 dark:text-neutral-200">{{ items.end_index }}</span> 
+    de 
+    <span class="font-medium text-gray-900 dark:text-neutral-200">{{ items.paginator.count }}</span> 
+    itens
+  </div>
+
+  <nav class="flex items-center gap-1" aria-label="Paginação">
+    {% if objects.has_previous %}
+      <a href="?page={{ objects.previous_page_number }}{{ additional_url_query }}" class="min-w-[28px] h-7 px-1.5 flex items-center justify-center border border-gray-200 dark:border-neutral-700 rounded-md bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 text-[12.5px] font-mono hover:border-blue-700 hover:text-blue-700 transition-colors" title="Página Anterior">
+        ‹
+      </a>
+    {% else %}
+      <button class="min-w-[28px] h-7 px-1.5 flex items-center justify-center border border-gray-200 dark:border-neutral-700 rounded-md bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 text-[12.5px] font-mono opacity-40 cursor-not-allowed" disabled>
+        ‹
+      </button>
+    {% endif %}
+
+    {% if pagination_range.first_page_out_of_range %}
+      <a href="?page=1{{ additional_url_query }}" class="min-w-[28px] h-7 px-1.5 flex items-center justify-center border border-gray-200 dark:border-neutral-700 rounded-md bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 text-[12.5px] font-mono hover:border-blue-700 hover:text-blue-700 transition-colors">1</a>
+      <span class="px-1.5 text-gray-500 dark:text-neutral-400">...</span>
+    {% endif %}
+
+    {% for page in pagination_range.pagination %}
+      {% if page == pagination_range.current_page %}
+        <span class="min-w-[28px] h-7 px-1.5 flex items-center justify-center border border-blue-700 rounded-md bg-blue-700 text-white text-[12.5px] font-mono cursor-default">
+          {{ page }}
+        </span>
+      {% else %}
+        <a href="?page={{ page }}{{ additional_url_query }}" class="min-w-[28px] h-7 px-1.5 flex items-center justify-center border border-gray-200 dark:border-neutral-700 rounded-md bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 text-[12.5px] font-mono hover:border-blue-700 hover:text-blue-700 transition-colors">
+          {{ page }}
+        </a>
+      {% endif %}
+    {% endfor %}
+
+    {% if pagination_range.last_page_out_of_range %}
+      <span class="px-1.5 text-gray-500 dark:text-neutral-400">...</span>
+      <a href="?page={{ pagination_range.total_pages }}{{ additional_url_query }}" class="min-w-[28px] h-7 px-1.5 flex items-center justify-center border border-gray-200 dark:border-neutral-700 rounded-md bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 text-[12.5px] font-mono hover:border-blue-700 hover:text-blue-700 transition-colors">
+        {{ pagination_range.total_pages }}
+      </a>
+    {% endif %}
+
+    {% if objects.has_next %}
+      <a href="?page={{ objects.next_page_number }}{{ additional_url_query }}" class="min-w-[28px] h-7 px-1.5 flex items-center justify-center border border-gray-200 dark:border-neutral-700 rounded-md bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 text-[12.5px] font-mono hover:border-blue-700 hover:text-blue-700 transition-colors" title="Próxima Página">
+        ›
+      </a>
+    {% else %}
+      <button class="min-w-[28px] h-7 px-1.5 flex items-center justify-center border border-gray-200 dark:border-neutral-700 rounded-md bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 text-[12.5px] font-mono opacity-40 cursor-not-allowed" disabled>
+        ›
+      </button>
+    {% endif %}
+  </nav>
+</div>
+{% endif %}
+
