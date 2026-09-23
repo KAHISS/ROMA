@@ -1,0 +1,88 @@
+<div id="productModal" class="{% if form.errors %}{% else %}hidden {% endif %}fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="productModalTitle">
+  <div class="fixed inset-0 bg-black/50" data-product-modal-close></div>
+
+  <div class="relative flex min-h-full items-center justify-center p-4 sm:p-6">
+    <div class="relative w-full max-w-2xl rounded-lg border border-gray-200 bg-white shadow-xl dark:border-neutral-800 dark:bg-neutral-900">
+      <div class="flex items-center justify-between gap-4 border-b border-gray-200 px-5 py-4 dark:border-neutral-800">
+        <div>
+          <h2 id="productModalTitle" class="text-base font-semibold text-gray-900 dark:text-white">
+            {% if form.instance.pk %}Editar produto{% else %}Novo produto{% endif %}
+          </h2>
+          <p class="mt-0.5 text-xs text-gray-500 dark:text-neutral-400">
+            Preencha os dados para cadastrar o produto no estoque.
+          </p>
+        </div>
+
+        <button type="button" data-product-modal-close aria-label="Fechar modal" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M18 6 6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <form method="post" action="{{ form_action|default:request.path }}" class="p-5">
+        {% csrf_token %}
+        <input type="hidden" name="product_id" id="productId">
+
+        {% if form.non_field_errors %}
+          <div class="mb-5 rounded-md border border-red-200 bg-red-50 px-3 py-2.5 text-xs text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div class="sm:col-span-2">
+            <label for="{{ form.barcode.id_for_label }}" class="mb-1.5 block text-[12.5px] font-medium text-gray-700 dark:text-neutral-200">Código de barras</label>
+            {{ form.barcode }}
+            {% if form.barcode.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.barcode.errors.0 }}</p>{% endif %}
+          </div>
+
+          <div class="sm:col-span-2">
+            <label for="{{ form.description.id_for_label }}" class="mb-1.5 block text-[12.5px] font-medium text-gray-700 dark:text-neutral-200">Descrição</label>
+            {{ form.description }}
+            {% if form.description.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.description.errors.0 }}</p>{% endif %}
+          </div>
+
+          <div class="sm:col-span-2">
+            <label for="{{ form.brand.id_for_label }}" class="mb-1.5 block text-[12.5px] font-medium text-gray-700 dark:text-neutral-200">Marca <span class="font-normal text-gray-400 dark:text-neutral-500">(opcional)</span></label>
+            {{ form.brand }}
+            {% if form.brand.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.brand.errors.0 }}</p>{% endif %}
+          </div>
+
+          <div>
+            <label for="{{ form.cust.id_for_label }}" class="mb-1.5 block text-[12.5px] font-medium text-gray-700 dark:text-neutral-200">Custo unitário</label>
+            {{ form.cust }}
+            {% if form.cust.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.cust.errors.0 }}</p>{% endif %}
+          </div>
+
+          <div>
+            <label for="{{ form.price.id_for_label }}" class="mb-1.5 block text-[12.5px] font-medium text-gray-700 dark:text-neutral-200">Preço de venda</label>
+            {{ form.price }}
+            {% if form.price.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.price.errors.0 }}</p>{% endif %}
+          </div>
+
+          <div>
+            <label for="{{ form.quantity.id_for_label }}" class="mb-1.5 block text-[12.5px] font-medium text-gray-700 dark:text-neutral-200">Quantidade em estoque</label>
+            {{ form.quantity }}
+            {% if form.quantity.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.quantity.errors.0 }}</p>{% endif %}
+          </div>
+
+          <div>
+            <label for="{{ form.min_quantity.id_for_label }}" class="mb-1.5 block text-[12.5px] font-medium text-gray-700 dark:text-neutral-200">Quantidade mínima</label>
+            {{ form.min_quantity }}
+            {% if form.min_quantity.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.min_quantity.errors.0 }}</p>{% endif %}
+          </div>
+        </div>
+
+        <div class="mt-6 flex flex-col-reverse gap-2 border-t border-gray-200 pt-4 sm:flex-row sm:justify-end dark:border-neutral-800">
+          <button type="button" data-product-modal-close class="rounded-md border border-gray-200 bg-white px-3.5 py-2 text-[13px] font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800">
+            Cancelar
+          </button>
+          <button type="submit" class="rounded-md bg-amber-500 px-3.5 py-2 text-[13px] font-semibold text-black transition-colors hover:bg-amber-400">
+            {% if form.instance.pk %}Salvar alterações{% else %}Cadastrar produto{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

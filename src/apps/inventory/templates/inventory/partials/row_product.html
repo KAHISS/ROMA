@@ -1,21 +1,40 @@
+{% load l10n %}
 <tr class="hover:bg-gray-50 dark:hover:bg-neutral-800/60">
-  <td class="py-3 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-semibold">{{ produto.description }}</td>
-  <td class="py-3 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-mono">{{ produto.barcode }}</td>
-  <td class="py-3 px-3.5 border-b border-gray-200 dark:border-neutral-800">{{ produto.brand|default:"-" }}</td>
-  <td class="py-3 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-mono">{{ produto.quantity }}</td>
-  <td class="py-3 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-mono">-</td>
-  <td class="py-3 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-mono">R$ {{ produto.price }}</td>
+  <td class="py-3 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-semibold">{{ product.description }}</td>
+  <td class="py-3 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-mono">{{ product.barcode }}</td>
+  <td class="py-3 px-3.5 border-b border-gray-200 dark:border-neutral-800">{{ product.brand|default:"-" }}</td>
+  <td class="py-3 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-mono">{{ product.quantity }}</td>
+  <td class="py-3 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-mono">{{ product.price }}</td>
+  <td class="py-3 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-mono">R$ {{ product.price }}</td>
   <td class="py-3 px-3.5 border-b border-gray-200 dark:border-neutral-800">
-    <span class="inline-block text-[11.5px] font-semibold px-2.5 py-1 rounded {{ produto.status_css }}">{{ produto.status_label }}</span>
+    <span class="inline-block text-[11.5px] font-semibold px-2.5 py-1 rounded {{ product.status_css }}">{{ product.status_label }}</span>
   </td>
   <td class="py-3 px-3.5 border-b border-gray-200 dark:border-neutral-800">
     <div class="flex gap-1.5 justify-end">
-      <button class="w-7 h-7 flex items-center justify-center border border-gray-200 dark:border-neutral-700 rounded-md bg-transparent text-gray-500 dark:text-neutral-400 hover:border-blue-700 hover:text-blue-700 transition-colors" title="Editar">
+      <button
+        type="button"
+        data-product-edit
+        data-product-id="{{ product.pk }}"
+        data-barcode="{{ product.barcode }}"
+        data-description="{{ product.description }}"
+        data-brand="{{ product.brand|default:'' }}"
+        data-cust="{{ product.cust|unlocalize }}"
+        data-price="{{ product.price|unlocalize }}"
+        data-quantity="{{ product.quantity }}"
+        data-min-quantity="{{ product.min_quantity }}"
+        class="w-7 h-7 flex items-center justify-center border border-gray-200 dark:border-neutral-700 rounded-md bg-transparent text-gray-500 dark:text-neutral-400 hover:border-amber-500 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+        title="Editar"
+      >
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
       </button>
-      <button class="w-7 h-7 flex items-center justify-center border border-gray-200 dark:border-neutral-700 rounded-md bg-transparent text-gray-500 dark:text-neutral-400 hover:border-red-600 hover:text-red-600 transition-colors" title="Deletar">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-      </button>
+      <form method="post" action="{% url 'inventory:list_inventory' %}" onsubmit="return confirm('Tem certeza de que deseja excluir o produto &quot;{{ product.description|escapejs }}&quot;? Esta ação não pode ser desfeita.');">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="delete">
+        <input type="hidden" name="product_id" value="{{ product.pk }}">
+        <button type="submit" class="w-7 h-7 flex items-center justify-center border border-gray-200 dark:border-neutral-700 rounded-md bg-transparent text-gray-500 dark:text-neutral-400 hover:border-red-600 hover:text-red-600 transition-colors" title="Deletar">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        </button>
+      </form>
     </div>
   </td>
 </tr>

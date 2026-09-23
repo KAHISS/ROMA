@@ -10,6 +10,7 @@ class ProductAdmin(admin.ModelAdmin):
         'barcode',
         'description',
         'brand',
+        'cust',
         'price',
         'quantity',
         'min_quantity',
@@ -29,7 +30,7 @@ class ProductAdmin(admin.ModelAdmin):
             'fields': ('barcode', 'description', 'brand')
         }),
         ('Estoque e Preço', {
-            'fields': ('price', 'quantity', 'min_quantity', 'status_label')
+            'fields': ('cust', 'price', 'quantity', 'min_quantity', 'status_label')
         }),
         ('Datas', {
             'fields': ('created_at', 'updated_at')

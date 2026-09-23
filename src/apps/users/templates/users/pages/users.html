@@ -1,0 +1,111 @@
+{% extends "global/pages/base_administration.html" %}
+{% load static %}
+
+{% block title %}Painel · Usuários{% endblock %}
+{% block page_title %}Usuários{% endblock %}
+{% block nav_usuarios %}bg-neutral-800 text-white border-amber-500{% endblock %}
+
+{% block content %}
+<section class="section" id="usuarios">
+  <div class="rounded-lg border border-gray-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
+    <div class="flex flex-col justify-between gap-3.5 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center dark:border-neutral-800">
+      <div class="flex flex-col">
+        <h2 class="text-base font-semibold">Usuários</h2>
+        <span class="text-xs text-gray-500 dark:text-neutral-400">{{ objects.paginator.count|default:"0" }} usuários encontrados</span>
+      </div>
+      <button type="button" id="openUserModal" class="inline-flex items-center justify-center gap-1.5 rounded-md bg-amber-500 px-3.5 py-2 text-[13px] font-semibold text-black transition-colors hover:bg-amber-400">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+        Novo usuário
+      </button>
+    </div>
+
+    <div class="px-5 py-5">
+      <form method="get" action="{{ request.path }}" class="rounded-lg border border-gray-200 bg-gray-50/70 p-4 dark:border-neutral-800 dark:bg-neutral-950/40">
+        <div class="mb-3 flex items-center gap-2">
+          <div class="flex h-7 w-7 items-center justify-center rounded-md bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16l-6.5 7.5V18l-3 2v-8.5L4 4Z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-[13px] font-semibold text-gray-900 dark:text-white">Filtros</h3>
+            <p class="text-xs text-gray-500 dark:text-neutral-400">Encontre usuários por nome, usuário, e-mail ou tipo de acesso.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_180px_180px_auto]">
+          <div>
+            <label for="id_search" class="mb-1.5 block text-[12px] font-medium text-gray-700 dark:text-neutral-200">Buscar usuário</label>
+            <div class="relative">
+              <svg class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-neutral-500" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="6"/>
+                <path d="m20 20-4-4"/>
+              </svg>
+              <input type="search" id="id_search" name="search" value="{{ filter.form.search.value|default_if_none:'' }}" placeholder="Nome, usuário ou e-mail" class="w-full rounded-md border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm text-gray-900 placeholder:text-gray-400 transition-colors focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500">
+            </div>
+          </div>
+
+          <div>
+            <label for="id_is_active" class="mb-1.5 block text-[12px] font-medium text-gray-700 dark:text-neutral-200">Status</label>
+            <select id="id_is_active" name="is_active" class="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 transition-colors focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
+              <option value="">Todos os status</option>
+              <option value="true" {% if filter.form.is_active.value == "true" %}selected{% endif %}>Ativos</option>
+              <option value="false" {% if filter.form.is_active.value == "false" %}selected{% endif %}>Inativos</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="id_role" class="mb-1.5 block text-[12px] font-medium text-gray-700 dark:text-neutral-200">Tipo de acesso</label>
+            <select id="id_role" name="role" class="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 transition-colors focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
+              <option value="">Todos os acessos</option>
+              <option value="staff" {% if filter.form.role.value == "staff" %}selected{% endif %}>Administrador</option>
+              <option value="user" {% if filter.form.role.value == "user" %}selected{% endif %}>Usuário</option>
+            </select>
+          </div>
+
+          <div class="flex items-end gap-2">
+            <button type="submit" class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md bg-amber-500 px-3.5 py-2 text-[13px] font-semibold text-black transition-colors hover:bg-amber-400">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16l-6.5 7.5V18l-3 2v-8.5L4 4Z"/></svg>
+              Filtrar
+            </button>
+            <a href="{{ request.path }}" class="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-3 py-2 text-[13px] font-semibold text-gray-700 transition-colors hover:bg-gray-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800">Limpar</a>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="overflow-x-auto p-5 pt-0">
+      <table class="w-full min-w-[820px] border-collapse text-sm">
+        <thead>
+          <tr>
+            <th class="border-b border-gray-200 px-3.5 pb-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:border-neutral-800 dark:text-neutral-400">Usuário</th>
+            <th class="border-b border-gray-200 px-3.5 pb-2.5 text-left font-mono text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:border-neutral-800 dark:text-neutral-400">Username</th>
+            <th class="border-b border-gray-200 px-3.5 pb-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:border-neutral-800 dark:text-neutral-400">E-mail</th>
+            <th class="border-b border-gray-200 px-3.5 pb-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:border-neutral-800 dark:text-neutral-400">Acesso</th>
+            <th class="border-b border-gray-200 px-3.5 pb-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:border-neutral-800 dark:text-neutral-400">Status</th>
+            <th class="border-b border-gray-200 px-3.5 pb-2.5 text-left font-mono text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:border-neutral-800 dark:text-neutral-400">Cadastro</th>
+            <th class="border-b border-gray-200 dark:border-neutral-800"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+            {% include "users/partials/row_user.html" %}
+          {% empty %}
+            <tr>
+              <td colspan="7" class="px-3.5 py-8 text-center text-gray-500 dark:text-neutral-400">Nenhum usuário encontrado.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% include "global/partials/pagination.html" %}
+    </div>
+  </div>
+</section>
+
+{% include "users/partials/user_form.html" %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'users/js/modal.js' %}"></script>
+{% endblock %}

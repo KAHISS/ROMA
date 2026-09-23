@@ -23,7 +23,8 @@ from core import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('inventory/', include('apps.inventory.urls', namespace="inventory"))
+    path('inventory/', include('apps.inventory.urls', namespace="inventory")),
+    path('users/', include('apps.users.urls', namespace="users"))
 ]
 
 if settings.DEBUG:
