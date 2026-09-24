@@ -2,14 +2,18 @@ import environ
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.http import require_POST
 
-from apps.users.forms import UserForm, UserPasswordForm, UserUpdateForm
+from apps.users.forms import LoginForm, UserForm, UserPasswordForm, UserUpdateForm
 from apps.users.services import (
+    authenticate_and_login,
     create_user,
     delete_user,
     get_user_list_context,
     update_user,
     update_user_password,
+    logout_user
 )
 from django.contrib.auth import get_user_model
 
@@ -78,3 +82,39 @@ def user_list(request):
     })
 
     return render(request, "users/pages/users.html", context)
+
+def login_view(request):
+    """Render and process the application login page."""
+    next_url = request.POST.get("next") or request.GET.get("next")
+
+    if request.user.is_authenticated:
+        return redirect("users:list_users")
+
+    form = LoginForm(request, data=request.POST or None)
+
+    if request.method == "POST":
+        user = authenticate_and_login(request, form)
+        if user is not None:
+            if next_url and url_has_allowed_host_and_scheme(
+                next_url,
+                allowed_hosts={request.get_host()},
+                require_https=request.is_secure(),
+            ):
+                return redirect(next_url)
+
+            return redirect("users:list_users")
+
+    return render(
+        request,
+        "users/pages/login.html",
+        {
+            "form": form,
+            "next": next_url,
+            "title": "Login",
+        },
+    )
+
+def logout_view(request):
+    """Processa logout via POST e redireciona para a página de login."""
+    logout_user(request)
+    return redirect("users:login")

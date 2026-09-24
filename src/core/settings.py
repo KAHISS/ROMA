@@ -48,6 +48,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'core.urls'
 
+LOGIN_URL = "users:login"
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

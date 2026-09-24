@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model, login, logout
 
 from apps.users.filters import UserFilter
 from utils.pagination import make_pagination
@@ -67,3 +67,18 @@ def delete_user(user_id):
     """Delete a user by its primary key."""
     user = User.objects.get(pk=user_id)
     user.delete()
+
+
+def logout_user(request):
+    """End the current user's authenticated session."""
+    logout(request)
+
+
+def authenticate_and_login(request, form):
+    """Validate login form and authenticate the user session."""
+    if not form.is_valid():
+        return None
+
+    user = form.get_user()
+    login(request, user)
+    return user
