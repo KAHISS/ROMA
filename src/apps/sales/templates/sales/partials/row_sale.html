@@ -1,0 +1,40 @@
+<tr class="group hover:bg-gray-50 dark:hover:bg-neutral-800/60">
+  <td class="border-b border-gray-200 px-3.5 py-3 dark:border-neutral-800">
+    <a href="{% url 'sales:sale_detail' sale.pk %}" class="font-mono text-[12.5px] font-semibold text-gray-900 hover:text-amber-600 dark:text-white dark:hover:text-amber-400">
+      #{{ sale.pk }}
+    </a>
+  </td>
+  <td class="border-b border-gray-200 px-3.5 py-3 dark:border-neutral-800">
+    <a href="{% url 'sales:sale_detail' sale.pk %}" class="font-medium text-gray-900 hover:text-amber-600 dark:text-neutral-100 dark:hover:text-amber-400">
+      {{ sale.client|default:"Consumidor Final" }}
+    </a>
+  </td>
+  <td class="border-b border-gray-200 px-3.5 py-3 text-gray-600 dark:border-neutral-800 dark:text-neutral-300">{{ sale.created_at|date:"d/m/Y H:i" }}</td>
+  <td class="border-b border-gray-200 px-3.5 py-3 font-mono text-gray-900 dark:border-neutral-800 dark:text-neutral-100">R$ {{ sale.total_price|floatformat:2 }}</td>
+  <td class="border-b border-gray-200 px-3.5 py-3 dark:border-neutral-800">
+    {% if sale.status == "pago" %}
+      <span class="inline-block rounded bg-green-100 px-2.5 py-1 text-[11.5px] font-semibold text-green-800 dark:bg-green-950 dark:text-green-300">{{ sale.get_status_display }}</span>
+    {% else %}
+      <span class="inline-block rounded bg-amber-100 px-2.5 py-1 text-[11.5px] font-semibold text-amber-800 dark:bg-amber-950 dark:text-amber-300">{{ sale.get_status_display }}</span>
+    {% endif %}
+  </td>
+  <td class="border-b border-gray-200 px-3.5 py-3 text-gray-600 dark:border-neutral-800 dark:text-neutral-300">{{ sale.updated_at|date:"d/m/Y H:i" }}</td>
+  <td class="border-b border-gray-200 px-3.5 py-3 dark:border-neutral-800">
+    <div class="flex justify-end gap-1.5">
+      <a href="{% url 'sales:sale_detail' sale.pk %}" aria-label="Abrir venda #{{ sale.pk }}" title="Abrir venda" class="flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-transparent text-gray-500 transition-colors hover:border-amber-500 hover:text-amber-600 dark:border-neutral-700 dark:text-neutral-400 dark:hover:text-amber-400">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+      </a>
+      <button type="button" data-print-sale-url="{% url 'sales:sale_detail' sale.pk %}?print=1" aria-label="Imprimir venda #{{ sale.pk }}" title="Imprimir cupom" class="flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-transparent text-gray-500 transition-colors hover:border-amber-500 hover:text-amber-600 dark:border-neutral-700 dark:text-neutral-400 dark:hover:text-amber-400">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+      </button>
+      <form method="post" action="{% url 'sales:list_sales' %}" onsubmit="return confirm('Tem certeza de que deseja excluir a venda #{{ sale.pk }}? Esta ação não pode ser desfeita.');">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="delete">
+        <input type="hidden" name="sale_id" value="{{ sale.pk }}">
+        <button type="submit" aria-label="Excluir venda #{{ sale.pk }}" title="Excluir venda" class="flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-transparent text-gray-500 transition-colors hover:border-red-600 hover:text-red-600 dark:border-neutral-700 dark:text-neutral-400">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-2-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        </button>
+      </form>
+    </div>
+  </td>
+</tr>

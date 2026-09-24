@@ -42,7 +42,7 @@
     <div class="flex items-center gap-3 px-5 pb-5 mb-2 border-b border-neutral-800">
       <div class="w-8 h-8 rounded-md bg-amber-500 text-black font-bold text-[15px] flex items-center justify-center shrink-0">R</div>
       <div>
-        <div class="text-[15.5px] text-white font-semibold">Roma</div>
+        <div class="text-[15.5px] text-white font-semibold">Tabacaria Roma</div>
         <div class="text-[11px] text-neutral-500 mt-px">painel administrativo</div>
       </div>
     </div>
@@ -59,7 +59,7 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="shrink-0 opacity-85"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
         <span>Estoque</span>
       </a>
-      <a href="" class="flex items-center gap-3 px-2.5 py-2.5 mb-0.5 rounded-md text-[13.5px] font-medium text-neutral-300 border-l-2 border-transparent hover:bg-neutral-900 hover:text-white transition-colors {% block nav_vendas %}{% endblock %}">
+      <a href="{% url "sales:list_sales" %}" class="flex items-center gap-3 px-2.5 py-2.5 mb-0.5 rounded-md text-[13.5px] font-medium text-neutral-300 border-l-2 border-transparent hover:bg-neutral-900 hover:text-white transition-colors {% block nav_vendas %}{% endblock %}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="shrink-0 opacity-85"><circle cx="9" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.5 3h2l2.6 12.4a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 2-1.6L22 7H6"/></svg>
         <span>Vendas</span>
       </a>

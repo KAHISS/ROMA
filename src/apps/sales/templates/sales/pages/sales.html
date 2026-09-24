@@ -1,0 +1,135 @@
+{% extends "global/pages/base_administration.html" %}
+{% load static %}
+
+{% block title %}Painel · Vendas{% endblock %}
+{% block page_title %}Vendas{% endblock %}
+{% block nav_vendas %}bg-neutral-800 text-white border-amber-500{% endblock %}
+
+{% block content %}
+<section class="section" id="vendas">
+  <div class="border border-gray-200 dark:border-neutral-800 rounded-lg bg-white dark:bg-neutral-900">
+    <div class="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 dark:border-neutral-800 sm:flex-row sm:items-center sm:justify-between">
+      <h2 class="text-base font-semibold">Vendas</h2>
+      <a href="{% url 'sales:new_sale' %}" class="inline-flex items-center justify-center gap-1.5 rounded-md bg-amber-500 px-3.5 py-2 text-[13px] font-semibold text-black hover:bg-amber-400 transition-colors">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+        Nova venda
+      </a>
+    </div>
+    <!-- KPI cards -->
+    <div class="px-5 pt-5">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-5">
+        <div class="border border-gray-200 dark:border-neutral-800 rounded-lg p-4 bg-white dark:bg-neutral-900">
+          <div class="flex items-start justify-between mb-3">
+            <div class="text-[12.5px] text-gray-500 dark:text-neutral-400 font-medium">Total de Vendas</div>
+            <div class="w-8 h-8 rounded-md bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h18"/></svg>
+            </div>
+          </div>
+          <div class="font-mono text-2xl font-semibold tracking-tight">{{ total_sales|default:"R$ 0,00" }}</div>
+          <div class="text-xs mt-2 font-medium text-gray-500 dark:text-neutral-400">valor total vendido</div>
+        </div>
+
+        <div class="border border-gray-200 dark:border-neutral-800 rounded-lg p-4 bg-white dark:bg-neutral-900">
+          <div class="flex items-start justify-between mb-3">
+            <div class="text-[12.5px] text-gray-500 dark:text-neutral-400 font-medium">Vendas Pagas</div>
+            <div class="w-8 h-8 rounded-md bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+            </div>
+          </div>
+          <div class="font-mono text-2xl font-semibold tracking-tight">{{ total_paid_amount|default:"R$ 0,00" }}</div>
+          <div class="text-xs mt-2 font-medium text-gray-500 dark:text-neutral-400">{{ total_paid_sales|default:"0" }} venda{{ total_paid_sales|pluralize:"s" }} paga{{ total_paid_sales|pluralize:"s" }}</div>
+        </div>
+
+        <div class="border border-gray-200 dark:border-neutral-800 rounded-lg p-4 bg-white dark:bg-neutral-900">
+          <div class="flex items-start justify-between mb-3">
+            <div class="text-[12.5px] text-gray-500 dark:text-neutral-400 font-medium">Vendas Pendentes</div>
+            <div class="w-8 h-8 rounded-md bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4"/><circle cx="12" cy="16" r="1"/><circle cx="12" cy="12" r="9"/></svg>
+            </div>
+          </div>
+          <div class="font-mono text-2xl font-semibold tracking-tight">{{ total_pending_amount|default:"R$ 0,00" }}</div>
+          <div class="text-xs mt-2 font-medium text-gray-500 dark:text-neutral-400">{{ total_pending_sales|default:"0" }} venda{{ total_pending_sales|pluralize:"s" }} pendente{{ total_pending_sales|pluralize:"s" }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="px-5 py-5">
+      <form method="get" action="{{ request.path }}" class="rounded-lg border border-gray-200 bg-gray-50/70 p-4 dark:border-neutral-800 dark:bg-neutral-950/40">
+        <div class="mb-3 flex items-center gap-2">
+          <div class="flex h-7 w-7 items-center justify-center rounded-md bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16l-6.5 7.5V18l-3 2v-8.5L4 4Z"/></svg>
+          </div>
+          <div>
+            <h3 class="text-[13px] font-semibold text-gray-900 dark:text-white">Filtros</h3>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_180px_180px_auto]">
+          <div>
+            <label for="id_search" class="mb-1.5 block text-[12px] font-medium text-gray-700 dark:text-neutral-200">Buscar venda</label>
+            <div class="relative">
+              <svg class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-neutral-500" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="6"/>
+                <path d="m20 20-4-4"/>
+              </svg>
+              <input type="search" id="id_search" name="search" value="{{ filter.form.search.value|default_if_none:'' }}" placeholder="Código da venda ou cliente" class="w-full rounded-md border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500">
+            </div>
+          </div>
+
+          <div>
+            <label for="id_status" class="mb-1.5 block text-[12px] font-medium text-gray-700 dark:text-neutral-200">Status</label>
+            <select id="id_status" name="status" class="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
+              <option value="">Todos os status</option>
+              <option value="paid" {% if filter.form.status.value == "paid" %}selected{% endif %}>Pagas</option>
+              <option value="pending" {% if filter.form.status.value == "pending" %}selected{% endif %}>Pendentes</option>
+            </select>
+          </div>
+
+          <div class="flex items-end gap-2">
+            <button type="submit" class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md bg-amber-500 px-3.5 py-2 text-[13px] font-semibold text-black hover:bg-amber-400">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16l-6.5 7.5V18l-3 2v-8.5L4 4Z"/></svg>
+              Filtrar
+            </button>
+            <a href="{{ request.path }}" class="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-3 py-2 text-[13px] font-semibold text-gray-700 hover:bg-gray-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800">Limpar</a>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Table -->
+    <div class="px-5 pb-5 overflow-x-auto">
+      <table class="w-full min-w-[720px] text-sm border-collapse">
+        <thead>
+          <tr>
+            <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800">Código</th>
+            <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800">Cliente</th>
+            <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800">Data</th>
+            <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800">Valor</th>
+            <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800">Status</th>
+            <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800">Atualizada</th>
+            <th class="border-b border-gray-200 dark:border-neutral-800"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sale in sales %}
+            {% include "sales/partials/row_sale.html" %}
+          {% empty %}
+            <tr>
+              <td colspan="7" class="px-3.5 py-8 text-center text-gray-500 dark:text-neutral-400">Nenhuma venda encontrada.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% include "global/partials/pagination.html" %}
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'sales/js/modal.js' %}"></script>
+<script src="{% static 'sales/js/print.js' %}?v=1"></script>
+{% endblock %}
