@@ -20,6 +20,7 @@
 
       <form method="post" action="{{ form_action|default:request.path }}" class="p-5">
         {% csrf_token %}
+        <input type="hidden" name="user_id" value="">
 
         {% if form.non_field_errors %}
           <div class="mb-5 rounded-md border border-red-200 bg-red-50 px-3 py-2.5 text-xs text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
@@ -63,13 +64,13 @@
             {% if form.is_superuser.errors %}<p class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ form.is_superuser.errors.0 }}</p>{% endif %}
           </div>
 
-          <div>
+          <div data-user-password-field>
             <label for="{{ form.password1.id_for_label }}" class="mb-1.5 block text-[12.5px] font-medium text-gray-700 dark:text-neutral-200">Senha</label>
             {{ form.password1 }}
             {% if form.password1.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.password1.errors.0 }}</p>{% endif %}
           </div>
 
-          <div>
+          <div data-user-password-field>
             <label for="{{ form.password2.id_for_label }}" class="mb-1.5 block text-[12.5px] font-medium text-gray-700 dark:text-neutral-200">Confirmar senha</label>
             {{ form.password2 }}
             {% if form.password2.errors %}<p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.password2.errors.0 }}</p>{% endif %}

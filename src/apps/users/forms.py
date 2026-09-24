@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import SetPasswordForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, SetPasswordForm, UserCreationForm
 
 
 User = get_user_model()
@@ -13,6 +13,40 @@ INPUT_CLASS = (
     "dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 "
     "dark:placeholder:text-neutral-500"
 )
+
+
+class LoginForm(AuthenticationForm):
+    """Formulário de login seguindo o design visual do sistema."""
+
+    username = forms.CharField(
+        label="Usuário",
+        widget=forms.TextInput(
+            attrs={
+                "class": INPUT_CLASS,
+                "placeholder": "Digite seu usuário",
+                "autocomplete": "username",
+                "autofocus": True,
+            }
+        ),
+    )
+    password = forms.CharField(
+        label="Senha",
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={
+                "class": INPUT_CLASS,
+                "placeholder": "Digite sua senha",
+                "autocomplete": "current-password",
+            }
+        ),
+    )
+
+    error_messages = {
+        "invalid_login": (
+            "Usuário ou senha inválidos. Verifique suas credenciais e tente novamente."
+        ),
+        "inactive": "Esta conta está inativa.",
+    }
 
 
 class UserForm(UserCreationForm):

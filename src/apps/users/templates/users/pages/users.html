@@ -29,7 +29,6 @@
           </div>
           <div>
             <h3 class="text-[13px] font-semibold text-gray-900 dark:text-white">Filtros</h3>
-            <p class="text-xs text-gray-500 dark:text-neutral-400">Encontre usuários por nome, usuário, e-mail ou tipo de acesso.</p>
           </div>
         </div>
 
@@ -104,6 +103,7 @@
 </section>
 
 {% include "users/partials/user_form.html" %}
+{% include "users/partials/set_password.html" %}
 {% endblock %}
 
 {% block extra_scripts %}
