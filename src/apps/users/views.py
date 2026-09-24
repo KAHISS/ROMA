@@ -1,3 +1,4 @@
+from django.http import Http404
 import environ
 
 from django.contrib.auth.decorators import login_required
@@ -26,6 +27,9 @@ PER_PAGE = env.int("PER_PAGE", default=12)
 
 @login_required
 def user_list(request):
+    if not request.user.is_superuser:
+        raise Http404("Não permitido")
+
     form = UserForm()
     password_form = None
 

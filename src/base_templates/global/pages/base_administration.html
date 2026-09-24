@@ -49,10 +49,12 @@
 
     <nav class="mt-4 px-3 flex-1">
       <div class="text-[10.5px] text-neutral-600 px-2.5 mb-2 font-semibold uppercase tracking-wider">Gestão</div>
-      <a href="{% url "users:list_users" %}" class="flex items-center gap-3 px-2.5 py-2.5 mb-0.5 rounded-md text-[13.5px] font-medium text-neutral-300 border-l-2 border-transparent hover:bg-neutral-900 hover:text-white transition-colors {% block nav_usuarios %}{% endblock %}">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="shrink-0 opacity-85"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        <span>Usuários</span>
-      </a>
+      {% if user.is_superuser %}
+        <a href="{% url "users:list_users" %}" class="flex items-center gap-3 px-2.5 py-2.5 mb-0.5 rounded-md text-[13.5px] font-medium text-neutral-300 border-l-2 border-transparent hover:bg-neutral-900 hover:text-white transition-colors {% block nav_usuarios %}{% endblock %}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="shrink-0 opacity-85"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Usuários</span>
+        </a>
+      {% endif %}
       <a href="{% url "inventory:list_inventory" %}" class="flex items-center gap-3 px-2.5 py-2.5 mb-0.5 rounded-md text-[13.5px] font-medium text-neutral-300 border-l-2 border-transparent hover:bg-neutral-900 hover:text-white transition-colors {% block nav_estoque %}{% endblock %}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="shrink-0 opacity-85"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
         <span>Estoque</span>
