@@ -10,10 +10,25 @@
   .print-receipt { display: none; }
   @media print {
     @page { size: 80mm auto; margin: 0; }
-    body { background: #fff !important; }
-    body * { visibility: hidden !important; }
-    .print-receipt, .print-receipt * { visibility: visible !important; }
-    .print-receipt { display: block; width: 72mm; margin: 0 auto; padding: 4mm 0; color: #000; background: #fff; font-family: monospace; font-size: 11px; line-height: 1.35; }
+    html, body { width: 80mm; min-height: 0 !important; margin: 0; padding: 0; background: #fff !important; }
+    body > div > aside,
+    body > div > main > header,
+    body > div > main > .flex-1 > *:not(.print-receipt) { display: none !important; }
+    body > div,
+    body > div > main,
+    body > div > main > .flex-1 { display: block !important; min-height: 0 !important; margin: 0; padding: 0; }
+    .print-receipt { display: block !important; width: 72mm; margin: 0 auto; padding: 4mm 0; color: #000 !important; background: #fff !important; font-family: monospace; font-size: 11px; line-height: 1.35; }
+    .print-receipt-header { text-align: center; }
+    .print-receipt-brand { display: flex; align-items: center; justify-content: center; gap: 2mm; font-size: 15px; font-weight: 700; letter-spacing: .3px; }
+    .print-receipt-brand svg { width: 15px; height: 15px; flex: 0 0 auto; }
+    .print-receipt-subtitle { margin-top: 1mm; font-size: 10px; letter-spacing: 1px; }
+    .print-receipt-rule { margin: 2mm 0; border-top: 1px dashed #000; }
+    .print-receipt-meta { font-size: 10px; }
+    .print-receipt-item { margin: 1.5mm 0; }
+    .print-receipt-item-name { font-weight: 700; }
+    .print-receipt-line { display: flex; justify-content: space-between; gap: 3mm; }
+    .print-receipt-total { margin-top: 2mm; font-size: 14px; font-weight: 700; }
+    .print-receipt-footer { margin-top: 3mm; text-align: center; font-size: 10px; }
   }
 </style>
 {% endblock %}
@@ -210,32 +225,41 @@
 </div>
 
 <section class="print-receipt" aria-hidden="true">
-  <div style="text-align:center;font-weight:bold;font-size:14px;">TABACARIA ROMA</div>
-  <div style="text-align:center;">CUPOM DE VENDA</div>
-  <div>--------------------------------</div>
-  <div>Venda: #{{ sale.pk }}</div>
-  <div>{{ sale.created_at|date:"d/m/Y H:i" }}</div>
-  <div>Cliente: {{ sale.client }}</div>
-  <div>--------------------------------</div>
+  <div class="print-receipt-header">
+    <div class="print-receipt-brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="m3 5 3 3 3-5 3 5 3-5 3 5 3-3-2 14H5L3 5Z"/>
+        <path d="M5 13h14M7 19h10"/>
+      </svg>
+      <span>TABACARIA ROMA</span>
+    </div>
+    <div class="print-receipt-subtitle">CUPOM DE VENDA</div>
+  </div>
+  <div class="print-receipt-rule"></div>
+  <div class="print-receipt-meta">Venda: #{{ sale.pk }} · {{ sale.created_at|date:"d/m/Y H:i" }}</div>
+  <div class="print-receipt-meta">Cliente: {{ sale.client }}</div>
+  <div class="print-receipt-rule"></div>
   {% for item in sale.sale_items.all %}
-    <div>{{ item.product.description|truncatechars:28 }}</div>
-    <div style="display:flex;justify-content:space-between;"><span>{{ item.quantity }} x R$ {{ item.product.price|floatformat:2 }}</span><span>R$ {{ item.subtotal|floatformat:2 }}</span></div>
+    <div class="print-receipt-item">
+      <div class="print-receipt-item-name">{{ item.product.description|truncatechars:28 }}</div>
+      <div class="print-receipt-line"><span>{{ item.quantity }} x R$ {{ item.product.price|floatformat:2 }}</span><span>R$ {{ item.subtotal|floatformat:2 }}</span></div>
+    </div>
   {% empty %}
     <div>Nenhum item</div>
   {% endfor %}
-  <div>--------------------------------</div>
-  <div style="display:flex;justify-content:space-between;"><span>Subtotal</span><span>R$ {{ sale.subtotal|floatformat:2 }}</span></div>
-  <div style="display:flex;justify-content:space-between;"><span>Desconto</span><span>R$ {{ sale.discount|floatformat:2 }}</span></div>
-  <div style="display:flex;justify-content:space-between;"><span>Frete</span><span>R$ {{ sale.freight|floatformat:2 }}</span></div>
-  <div style="display:flex;justify-content:space-between;font-weight:bold;font-size:13px;"><span>TOTAL</span><span>R$ {{ sale.total_price|floatformat:2 }}</span></div>
-  <div>Pagamento: {{ sale.get_payment_method_display }}</div>
-  {% if sale.payment_method == "dinheiro" %}<div>Recebido: R$ {{ sale.cash_received|floatformat:2 }}</div>{% endif %}
-  <div>--------------------------------</div>
-  <div style="text-align:center;">Obrigado pela preferência!</div>
+  <div class="print-receipt-rule"></div>
+  <div class="print-receipt-line"><span>Subtotal</span><span>R$ {{ sale.subtotal|floatformat:2 }}</span></div>
+  <div class="print-receipt-line"><span>Desconto</span><span>- R$ {{ sale.discount|floatformat:2 }}</span></div>
+  <div class="print-receipt-line"><span>Frete</span><span>R$ {{ sale.freight|floatformat:2 }}</span></div>
+  <div class="print-receipt-line print-receipt-total"><span>TOTAL</span><span>R$ {{ sale.total_price|floatformat:2 }}</span></div>
+  <div class="print-receipt-rule"></div>
+  <div class="print-receipt-meta">Pagamento: {{ sale.get_payment_method_display }}</div>
+  {% if sale.payment_method == "dinheiro" %}<div class="print-receipt-meta">Recebido: R$ {{ sale.cash_received|floatformat:2 }}</div>{% endif %}
+  <div class="print-receipt-footer">Obrigado pela preferência!</div>
 </section>
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="{% static 'sales/js/sale.js' %}?v=5"></script>
-<script src="{% static 'sales/js/print.js' %}?v=1"></script>
+<script src="{% static 'sales/js/sale.js' %}?v=7"></script>
+<script src="{% static 'sales/js/print.js' %}?v=2"></script>
 {% endblock %}

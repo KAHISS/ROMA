@@ -7,7 +7,7 @@
 
 set -e  # para o script imediatamente se qualquer comando falhar
 
-IMAGE="ghcr.io/kahiss/jpacessorios"
+IMAGE="ghcr.io/kahiss/roma"
 VERSION="$1"
 
 echo "==> Buildando imagem de produção..."

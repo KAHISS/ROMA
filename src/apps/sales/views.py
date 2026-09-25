@@ -12,12 +12,12 @@ from apps.sales.services import (
     create_sale,
     add_product_to_sale,
     add_product_by_id_to_sale,
+    InsufficientStockError,
     change_sale_item_quantity,
     search_products_for_sale,
     update_sale_summary,
     update_sale,
     delete_sale,
-    delete_zero_total_sales,
 )
 
 env = environ.Env()
@@ -46,7 +46,6 @@ def sales_list(request):
 
 @login_required
 def new_sale(request):
-    delete_zero_total_sales()
     form = SaleForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
@@ -55,7 +54,15 @@ def new_sale(request):
         sale.save()
         return render(request, "sales/pages/sale.html", {"sale": sale})
 
-    sale = Sale.objects.create(seller=request.user)
+    if request.method == "POST":
+        return JsonResponse({"error": "Dados da venda inválidos."}, status=400)
+
+    sale = Sale.objects.filter(
+        seller=request.user,
+        total_price=0,
+    ).order_by("-created_at").first()
+    if sale is None:
+        sale = Sale.objects.create(seller=request.user)
     return render(request, "sales/pages/sale.html", {"sale": sale, "form": form})
 
 
@@ -98,6 +105,8 @@ def add_sale_item(request, sale_id):
         return JsonResponse({"error": "Venda não encontrada."}, status=404)
     except Product.DoesNotExist:
         return JsonResponse({"error": "Produto não encontrado."}, status=404)
+    except InsufficientStockError:
+        return JsonResponse({"error": "Produto sem estoque disponível."}, status=400)
 
     return JsonResponse({
         "item": {
@@ -146,6 +155,8 @@ def add_sale_product_manually(request, sale_id):
             sale_id,
             request.POST.get("product_id"),
         )
+    except InsufficientStockError:
+        return JsonResponse({"error": "Produto sem estoque disponível."}, status=400)
     except (Sale.DoesNotExist, Product.DoesNotExist, ValueError, TypeError):
         return JsonResponse({"error": "Produto ou venda não encontrado."}, status=404)
 
@@ -182,6 +193,8 @@ def update_sale_item_quantity(request, sale_id, item_id):
 
     try:
         sale, sale_item = change_sale_item_quantity(sale_id, item_id, delta)
+    except InsufficientStockError:
+        return JsonResponse({"error": "Produto sem estoque disponível."}, status=400)
     except (Sale.DoesNotExist, SaleItem.DoesNotExist):
         return JsonResponse({"error": "Item da venda não encontrado."}, status=404)
 

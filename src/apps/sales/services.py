@@ -9,6 +9,10 @@ from apps.sales.models import Sale, SaleItem
 from utils.pagination import make_pagination
 
 
+class InsufficientStockError(Exception):
+    """Raised when a sale would consume more units than are available."""
+
+
 def get_sales_list_context(request, per_page=10):
 
     queryset = Sale.objects.all().order_by("-created_at")
@@ -137,6 +141,13 @@ def search_products_for_sale(query, limit=20):
 
 def _add_product_instance_to_sale(sale_id, product):
     sale = Sale.objects.select_for_update().get(pk=sale_id)
+    product = Product.objects.select_for_update().get(pk=product.pk)
+    if product.quantity <= 0:
+        raise InsufficientStockError
+
+    product.quantity -= 1
+    product.save(update_fields=["quantity", "updated_at"])
+
     sale_item, created = SaleItem.objects.get_or_create(
         sale=sale,
         product=product,
@@ -171,6 +182,16 @@ def change_sale_item_quantity(sale_id, item_id, delta):
     """Change an item's quantity and remove it when the quantity reaches zero."""
     sale = Sale.objects.select_for_update().get(pk=sale_id)
     sale_item = SaleItem.objects.select_for_update().get(pk=item_id, sale=sale)
+    product = Product.objects.select_for_update().get(pk=sale_item.product_id)
+
+    if delta == 1:
+        if product.quantity <= 0:
+            raise InsufficientStockError
+        product.quantity -= 1
+    else:
+        product.quantity += 1
+    product.save(update_fields=["quantity", "updated_at"])
+
     sale_item.quantity += delta
 
     if sale_item.quantity <= 0:

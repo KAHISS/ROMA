@@ -6,9 +6,15 @@
   });
 
   const printButton = document.querySelector("[data-print-current-sale]");
-  if (printButton) printButton.addEventListener("click", function () { window.print(); });
+  if (printButton) {
+    printButton.addEventListener("click", function () {
+      window.print();
+    });
+  }
 
   if (new URLSearchParams(window.location.search).get("print") === "1") {
-    window.addEventListener("load", function () { window.print(); });
+    window.addEventListener("load", function () {
+      window.setTimeout(function () { window.print(); }, 100);
+    }, { once: true });
   }
 })();

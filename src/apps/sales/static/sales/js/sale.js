@@ -39,6 +39,9 @@
     try {
       return JSON.parse(body);
     } catch (error) {
+      if (response.redirected || response.url.includes("/login")) {
+        throw new Error("Sessão expirada. Recarregue a página e tente novamente.");
+      }
       if (response.status === 403) {
         throw new Error("Sessão expirada ou requisição bloqueada. Recarregue a página.");
       }
@@ -324,8 +327,6 @@
   });
 
   if (summaryForm) {
-    summaryForm.setAttribute("action", window.location.pathname);
-
     summaryForm.querySelectorAll("input, select").forEach(function (field) {
       field.addEventListener("keydown", function (event) {
         if (event.key === "Enter") {
