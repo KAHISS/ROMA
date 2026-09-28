@@ -10,10 +10,8 @@
   const subtotal = document.querySelector("[data-sale-subtotal]");
   const total = document.querySelector("[data-sale-total]");
   const summaryForm = document.querySelector("[data-sale-summary-form]");
-  const summaryFeedback = document.querySelector("[data-sale-summary-feedback]");
-  const discount = document.querySelector("[data-sale-discount]");
-  const freight = document.querySelector("[data-sale-freight]");
   const paymentMethod = document.querySelector("[name='payment_method']");
+  const saleStatus = document.querySelector("[data-sale-status]");
   const cashReceivedField = document.querySelector("[data-cash-received-field]");
   const cashReceived = document.querySelector("[name='cash_received']");
   const changeRow = document.querySelector("[data-change-row]");
@@ -70,13 +68,6 @@
     if (paymentMethod && cashReceivedField && cashReceived && changeRow) updateChange();
   }
 
-  function setSummaryFeedback(message, isError) {
-    summaryFeedback.textContent = message;
-    summaryFeedback.classList.remove("hidden", "text-red-600", "text-green-600", "dark:text-red-400", "dark:text-green-400");
-    summaryFeedback.classList.add(isError ? "text-red-600" : "text-green-600");
-    summaryFeedback.classList.add(isError ? "dark:text-red-400" : "dark:text-green-400");
-  }
-
   function parseMoney(value) {
     return Number.parseFloat(String(value || "0").replace(",", ".")) || 0;
   }
@@ -96,6 +87,14 @@
 
     const change = Math.max(0, parseMoney(cashReceived.value) - parseMoney(total.textContent.replace("R$", "")));
     changeValue.textContent = formatMoney(change);
+  }
+
+  function updatePaymentStatus() {
+    const isPaid = paymentMethod.value !== "sem pagamento";
+    saleStatus.textContent = isPaid ? "Pago" : "Pendente";
+    saleStatus.className = isPaid
+      ? "rounded-full px-2.5 py-1 text-[11px] font-semibold bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
+      : "rounded-full px-2.5 py-1 text-[11px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300";
   }
 
   function setProductSearchFeedback(message, isError) {
@@ -335,38 +334,6 @@
         }
       });
     });
-
-    summaryForm.addEventListener("submit", async function (event) {
-      event.preventDefault();
-      const submitButton = summaryForm.querySelector("button[type='submit']");
-      submitButton.disabled = true;
-      submitButton.classList.add("opacity-60", "cursor-wait");
-
-      try {
-        const response = await fetch(summaryForm.getAttribute("action"), {
-          method: "POST",
-          headers: {
-            "X-CSRFToken": getCookie("csrftoken"),
-            "X-Requested-With": "XMLHttpRequest",
-          },
-          body: new URLSearchParams(new FormData(summaryForm)),
-        });
-        const data = await readJsonResponse(response, "Não foi possível atualizar o resumo");
-        if (!response.ok) throw new Error(data.error || "Não foi possível atualizar o resumo.");
-
-        subtotal.textContent = data.sale.subtotal;
-        discount.textContent = `- ${data.sale.discount}`;
-        freight.textContent = data.sale.freight;
-        total.textContent = data.sale.total_price;
-        updateChange();
-        setSummaryFeedback("Resumo atualizado.", false);
-      } catch (error) {
-        setSummaryFeedback(error.message, true);
-      } finally {
-        submitButton.disabled = false;
-        submitButton.classList.remove("opacity-60", "cursor-wait");
-      }
-    });
   }
 
   if (productModal) {
@@ -397,8 +364,12 @@
   }
 
   if (paymentMethod && cashReceivedField && cashReceived && changeRow) {
-    paymentMethod.addEventListener("change", updateChange);
+    paymentMethod.addEventListener("change", function () {
+      updateChange();
+      updatePaymentStatus();
+    });
     cashReceived.addEventListener("input", updateChange);
     updateChange();
+    updatePaymentStatus();
   }
 })();

@@ -60,13 +60,22 @@ def get_sales_list_context(request, per_page=10):
     }
 
 
-def create_sale(form):
+def create_sale(form, seller=None):
     """Validate and persist a ``Sale`` submitted through ``SaleForm``.
     Returns the saved instance or ``None`` if the form is invalid.
     """
     if not form.is_valid():
         return None
-    return form.save()
+    sale = form.save(commit=False)
+    if seller is not None:
+        sale.seller = seller
+    sale.status = (
+        Sale.Status.PENDING
+        if sale.payment_method == Sale.PaymentMethod.NO_PAYMENT
+        else Sale.Status.PAID
+    )
+    sale.save()
+    return sale
 
 
 def update_sale(sale_id, form):
@@ -78,6 +87,11 @@ def update_sale(sale_id, form):
     sale = Sale.objects.get(pk=sale_id)
     for field, value in form.cleaned_data.items():
         setattr(sale, field, value)
+    sale.status = (
+        Sale.Status.PENDING
+        if sale.payment_method == Sale.PaymentMethod.NO_PAYMENT
+        else Sale.Status.PAID
+    )
     sale.save()
     return sale
 
@@ -91,6 +105,11 @@ def update_sale_summary(sale_id, form):
     sale = Sale.objects.select_for_update().get(pk=sale_id)
     for field, value in form.cleaned_data.items():
         setattr(sale, field, value)
+    sale.status = (
+        Sale.Status.PENDING
+        if sale.payment_method == Sale.PaymentMethod.NO_PAYMENT
+        else Sale.Status.PAID
+    )
     if sale.payment_method != Sale.PaymentMethod.CASH:
         sale.cash_received = 0
     sale.total_price = sale.subtotal - sale.discount + sale.freight
@@ -101,6 +120,7 @@ def update_sale_summary(sale_id, form):
         "discount",
         "freight",
         "cash_received",
+        "status",
         "total_price",
         "updated_at",
     ])

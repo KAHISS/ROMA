@@ -65,7 +65,7 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_180px_180px_auto]">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_160px_160px_160px_auto]">
           <div>
             <label for="id_search" class="mb-1.5 block text-[12px] font-medium text-gray-700 dark:text-neutral-200">Buscar venda</label>
             <div class="relative">
@@ -81,9 +81,19 @@
             <label for="id_status" class="mb-1.5 block text-[12px] font-medium text-gray-700 dark:text-neutral-200">Status</label>
             <select id="id_status" name="status" class="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
               <option value="">Todos os status</option>
-              <option value="paid" {% if filter.form.status.value == "paid" %}selected{% endif %}>Pagas</option>
-              <option value="pending" {% if filter.form.status.value == "pending" %}selected{% endif %}>Pendentes</option>
+              <option value="pago" {% if filter.form.status.value == "pago" %}selected{% endif %}>Pagas</option>
+              <option value="pendente" {% if filter.form.status.value == "pendente" %}selected{% endif %}>Pendentes</option>
             </select>
+          </div>
+
+          <div>
+            <label for="id_created_at_after" class="mb-1.5 block text-[12px] font-medium text-gray-700 dark:text-neutral-200">Criada a partir de</label>
+            <input type="date" id="id_created_at_after" name="created_at_after" value="{{ request.GET.created_at_after|default_if_none:'' }}" class="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
+          </div>
+
+          <div>
+            <label for="id_created_at_before" class="mb-1.5 block text-[12px] font-medium text-gray-700 dark:text-neutral-200">Criada até</label>
+            <input type="date" id="id_created_at_before" name="created_at_before" value="{{ request.GET.created_at_before|default_if_none:'' }}" class="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
           </div>
 
           <div class="flex items-end gap-2">

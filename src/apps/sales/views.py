@@ -48,13 +48,10 @@ def sales_list(request):
 def new_sale(request):
     form = SaleForm(request.POST or None)
 
-    if request.method == "POST" and form.is_valid():
-        sale = form.save(commit=False)
-        sale.seller = request.user
-        sale.save()
-        return render(request, "sales/pages/sale.html", {"sale": sale})
-
     if request.method == "POST":
+        sale = create_sale(form, seller=request.user)
+        if sale is not None:
+            return redirect("sales:sale_detail", sale_id=sale.pk)
         return JsonResponse({"error": "Dados da venda inválidos."}, status=400)
 
     sale = Sale.objects.filter(
@@ -75,16 +72,15 @@ def sale_detail(request, sale_id):
         updated_sale = update_sale_summary(sale_id, form)
         if updated_sale is None:
             error = next(iter(form.errors.values()))[0]
-            return JsonResponse({"error": error}, status=400)
+            sale = Sale.objects.prefetch_related("sale_items__product").get(pk=sale_id)
+            return render(
+                request,
+                "sales/pages/sale.html",
+                {"sale": sale, "summary_error": error},
+                status=400,
+            )
 
-        return JsonResponse({
-            "sale": {
-                "subtotal": f"R$ {updated_sale.subtotal:.2f}".replace(".", ","),
-                "total_price": f"R$ {updated_sale.total_price:.2f}".replace(".", ","),
-                "discount": f"R$ {updated_sale.discount:.2f}".replace(".", ","),
-                "freight": f"R$ {updated_sale.freight:.2f}".replace(".", ","),
-            },
-        })
+        return redirect("sales:sale_detail", sale_id=updated_sale.pk)
 
     sale = Sale.objects.prefetch_related("sale_items__product").get(pk=sale_id)
     return render(request, "sales/pages/sale.html", {"sale": sale})

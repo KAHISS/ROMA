@@ -24,15 +24,21 @@ class SaleFilter(django_filters.FilterSet):
         label="Método de pagamento",
     )
 
-    # Filtro por intervalo de datas de criação
-    created_at = django_filters.DateFromToRangeFilter(
+    # Filtro por data local de criação, incluindo o dia inteiro.
+    created_at_after = django_filters.DateFilter(
         field_name="created_at",
-        label="Data da venda",
+        lookup_expr="date__gte",
+        label="Criada a partir de",
+    )
+    created_at_before = django_filters.DateFilter(
+        field_name="created_at",
+        lookup_expr="date__lte",
+        label="Criada até",
     )
 
     class Meta:
         model = Sale
-        fields = ["status", "payment_method", "created_at"]
+        fields = ["status", "payment_method", "created_at_after", "created_at_before"]
 
     def custom_search(self, queryset, name, value):
         """

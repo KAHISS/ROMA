@@ -17,7 +17,6 @@ class SaleForm(forms.ModelForm):
         model = Sale
         fields = [
             "client",
-            "status",
             "payment_method",
             "discount",
             "freight",
@@ -28,7 +27,6 @@ class SaleForm(forms.ModelForm):
             "discount": forms.NumberInput(attrs={"placeholder": "0,00", "step": "0.01", "min": "0"}),
             "freight": forms.NumberInput(attrs={"placeholder": "0,00", "step": "0.01", "min": "0"}),
             "cash_received": forms.NumberInput(attrs={"placeholder": "0,00", "step": "0.01", "min": "0"}),
-            "status": forms.Select(),
             "payment_method": forms.Select(),
         }
 
