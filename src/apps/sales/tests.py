@@ -54,6 +54,49 @@ class SaleStockTests(TestCase):
 		self.assertEqual(self.sale.client, "Cliente teste")
 		self.assertEqual(self.sale.status, Sale.Status.PAID)
 
+	def test_card_fee_is_added_to_total_only_for_card_payment(self):
+		self.client.force_login(self.user)
+		add_product_to_sale(self.sale.pk, self.product.barcode)
+		summary_url = reverse("sales:update_sale_summary", args=[self.sale.pk])
+
+		card_response = self.client.post(
+			summary_url,
+			{
+				"client": "Cliente teste",
+				"payment_method": Sale.PaymentMethod.CARD,
+				"discount": "0.00",
+				"freight": "0.00",
+				"card_fee_percentage": "2.50",
+				"cash_received": "0.00",
+			},
+		)
+
+		self.assertEqual(card_response.status_code, 200)
+		self.assertEqual(card_response.json()["sale"]["card_fee"], "R$ 0,25")
+		self.assertEqual(card_response.json()["sale"]["total_price"], "R$ 10,25")
+		self.sale.refresh_from_db()
+		self.assertEqual(self.sale.card_fee_percentage, Decimal("2.50"))
+		self.assertEqual(self.sale.total_price, Decimal("10.25"))
+
+		updated_sale, _ = add_product_to_sale(self.sale.pk, self.product.barcode)
+		self.assertEqual(updated_sale.total_price, Decimal("20.50"))
+
+		cash_response = self.client.post(
+			summary_url,
+			{
+				"client": "Cliente teste",
+				"payment_method": Sale.PaymentMethod.CASH,
+				"discount": "0.00",
+				"freight": "0.00",
+				"card_fee_percentage": "2.50",
+				"cash_received": "20.00",
+			},
+		)
+
+		self.assertEqual(cash_response.status_code, 200)
+		self.assertEqual(cash_response.json()["sale"]["card_fee"], "R$ 0,00")
+		self.assertEqual(cash_response.json()["sale"]["total_price"], "R$ 20,00")
+
 	def test_new_sale_reuses_empty_draft(self):
 		self.client.force_login(self.user)
 

@@ -54,6 +54,7 @@
             </div>
           </div>
           <div class="font-mono text-2xl font-semibold tracking-tight">{{ total_sales_potential|default:"R$ 0,00" }}</div>
+          <div class="mt-2 text-xs font-medium text-green-700 dark:text-green-400">Lucro estimado: {{ total_profit_potential|default:"R$ 0,00" }} ({{ total_profit_percentage|floatformat:2 }}%)</div>
           <div class="text-xs mt-2 font-medium text-amber-700 dark:text-amber-400">se todo o estoque for vendido</div>
         </div>
       </div>
@@ -142,6 +143,8 @@
             <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-mono">Quantidade</th>
             <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-mono">Custo un.</th>
             <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-mono">Preço</th>
+            <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-mono">Lucro total</th>
+            <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800 font-mono">Margem</th>
             <th class="text-left font-semibold text-gray-500 dark:text-neutral-400 text-[11px] uppercase tracking-wide pb-2.5 px-3.5 border-b border-gray-200 dark:border-neutral-800">Status</th>
             <th class="border-b border-gray-200 dark:border-neutral-800"></th>
           </tr>
@@ -151,7 +154,7 @@
           {% include 'inventory/partials/row_product.html' %}
           {% empty %}
           <tr>
-            <td colspan="8" class="py-8 px-3.5 text-center text-gray-500 dark:text-neutral-400">Nenhum product encontrado.</td>
+            <td colspan="10" class="py-8 px-3.5 text-center text-gray-500 dark:text-neutral-400">Nenhum product encontrado.</td>
           </tr>
           {% endfor %}
         </tbody>

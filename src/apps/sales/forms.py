@@ -1,4 +1,7 @@
+from decimal import Decimal
+
 from django import forms
+
 from .models import Sale
 
 INPUT_CLASS = (
@@ -20,18 +23,21 @@ class SaleForm(forms.ModelForm):
             "payment_method",
             "discount",
             "freight",
+            "card_fee_percentage",
             "cash_received",
         ]
         widgets = {
             "client": forms.TextInput(attrs={"placeholder": "Nome do cliente"}),
             "discount": forms.NumberInput(attrs={"placeholder": "0,00", "step": "0.01", "min": "0"}),
             "freight": forms.NumberInput(attrs={"placeholder": "0,00", "step": "0.01", "min": "0"}),
+            "card_fee_percentage": forms.NumberInput(attrs={"placeholder": "0,00", "step": "0.01", "min": "0", "max": "100"}),
             "cash_received": forms.NumberInput(attrs={"placeholder": "0,00", "step": "0.01", "min": "0"}),
             "payment_method": forms.Select(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["card_fee_percentage"].required = False
         # Apply the common Tailwind class to all fields except the selects
         for name, field in self.fields.items():
             if isinstance(field.widget, (forms.TextInput, forms.NumberInput, forms.EmailInput, forms.PasswordInput)):
@@ -40,3 +46,6 @@ class SaleForm(forms.ModelForm):
                 # Keep the default select styling – Tailwind styles are applied
                 # via the global ``select`` component in the base template.
                 pass
+
+    def clean_card_fee_percentage(self):
+        return self.cleaned_data.get("card_fee_percentage") or Decimal("0.00")

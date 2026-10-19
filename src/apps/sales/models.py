@@ -1,4 +1,7 @@
+from decimal import Decimal, ROUND_HALF_UP
+
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import User
 from apps.inventory.models import Product
 
@@ -28,6 +31,13 @@ class Sale(models.Model):
         "Desconto", max_digits=10, decimal_places=2, default=0)
     freight = models.DecimalField(
         "Frete", max_digits=10, decimal_places=2, default=0)
+    card_fee_percentage = models.DecimalField(
+        "Taxa da maquininha (%)",
+        max_digits=5,
+        decimal_places=2,
+        default=0,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+    )
     total_price = models.DecimalField(
         "Total", max_digits=10, decimal_places=2, default=0)
     status = models.CharField(
@@ -61,8 +71,20 @@ class Sale(models.Model):
         self.subtotal = sum(item.subtotal for item in self.sale_items.all())
         self.save()
 
+    @property
+    def card_fee_amount(self):
+        if self.payment_method != self.PaymentMethod.CARD:
+            return Decimal("0.00")
+        return (self.subtotal * self.card_fee_percentage / Decimal("100")).quantize(
+            Decimal("0.01"),
+            rounding=ROUND_HALF_UP,
+        )
+
+    def calculate_total_price(self):
+        return self.subtotal - self.discount + self.freight + self.card_fee_amount
+
     def get_total_price(self):
-        self.total_price = self.subtotal - self.discount + self.freight
+        self.total_price = self.calculate_total_price()
         self.save()
 
 

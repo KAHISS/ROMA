@@ -112,15 +112,15 @@ def update_sale_summary(sale_id, form):
     )
     if sale.payment_method != Sale.PaymentMethod.CASH:
         sale.cash_received = 0
-    sale.total_price = sale.subtotal - sale.discount + sale.freight
+    sale.total_price = sale.calculate_total_price()
     sale.save(update_fields=[
         "client",
         "status",
         "payment_method",
         "discount",
         "freight",
+        "card_fee_percentage",
         "cash_received",
-        "status",
         "total_price",
         "updated_at",
     ])
@@ -142,7 +142,7 @@ def _refresh_sale_totals(sale):
     items = sale.sale_items.all()
     sale.total_quantity = sum(item.quantity for item in items)
     sale.subtotal = sum(item.subtotal for item in items)
-    sale.total_price = sale.subtotal - sale.discount + sale.freight
+    sale.total_price = sale.calculate_total_price()
     sale.save(update_fields=["total_quantity", "subtotal", "total_price", "updated_at"])
 
 

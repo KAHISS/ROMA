@@ -43,7 +43,8 @@
       </div>
       <h2 class="text-xl font-semibold tracking-tight">Venda #{{ sale.id }}</h2>
     </div>
-    <a href="{% url 'sales:list_sales' %}" class="inline-flex items-center justify-center gap-1.5 self-start rounded-md border border-gray-200 bg-white px-3 py-2 text-[13px] font-semibold text-gray-700 hover:bg-gray-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800 sm:self-auto">
+    {% now "Y-m-d" as today %}
+    <a href="{% url 'sales:list_sales' %}?created_at_after={{ today }}&amp;created_at_before={{ today }}" class="inline-flex items-center justify-center gap-1.5 self-start rounded-md border border-gray-200 bg-white px-3 py-2 text-[13px] font-semibold text-gray-700 hover:bg-gray-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800 sm:self-auto">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
       Voltar para vendas
     </a>
@@ -154,6 +155,10 @@
               {% for value, label in sale.PaymentMethod.choices %}<option value="{{ value }}" {% if sale.payment_method == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
             </select>
           </div>
+          <div data-card-fee-field class="{% if sale.payment_method != 'cartão' %}hidden{% endif %}">
+            <label class="mb-1.5 block text-[12px] font-medium text-gray-700 dark:text-neutral-200" for="id_card_fee_percentage">Taxa da maquininha (%)</label>
+            <input type="number" step="0.01" min="0" max="100" id="id_card_fee_percentage" name="card_fee_percentage" value="{{ sale.card_fee_percentage|default:'0.00' }}" class="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100" />
+          </div>
           <div data-cash-received-field>
             <label class="mb-1.5 block text-[12px] font-medium text-gray-700 dark:text-neutral-200" for="id_cash_received">Valor recebido</label>
             <input type="number" step="0.01" min="0" id="id_cash_received" name="cash_received" value="{{ sale.cash_received|default:'0.00' }}" class="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100" />
@@ -173,6 +178,7 @@
             <div class="flex justify-between gap-3 text-gray-600 dark:text-neutral-400"><span>Subtotal</span><span data-sale-subtotal>R$ {{ sale.subtotal|floatformat:2 }}</span></div>
             <div class="flex justify-between gap-3 text-gray-600 dark:text-neutral-400"><span>Desconto</span><span data-sale-discount>- R$ {{ sale.discount|floatformat:2 }}</span></div>
             <div class="flex justify-between gap-3 text-gray-600 dark:text-neutral-400"><span>Frete</span><span data-sale-freight>R$ {{ sale.freight|floatformat:2 }}</span></div>
+            <div data-sale-card-fee-row class="{% if sale.payment_method != 'cartão' %}hidden {% endif %}flex justify-between gap-3 text-gray-600 dark:text-neutral-400"><span>Taxa da maquininha (<span data-sale-card-fee-rate>{{ sale.card_fee_percentage|floatformat:2 }}</span>%)</span><span data-sale-card-fee>R$ {{ sale.card_fee_amount|floatformat:2 }}</span></div>
             <div data-change-row class="hidden flex justify-between gap-3 font-medium text-gray-700 dark:text-neutral-200"><span>Troco</span><span data-sale-change>R$ 0,00</span></div>
           </div>
           <div class="rounded-md bg-amber-50 p-4 dark:bg-amber-950/40">
@@ -245,6 +251,7 @@
   <div class="print-receipt-line"><span>Subtotal</span><span>R$ {{ sale.subtotal|floatformat:2 }}</span></div>
   <div class="print-receipt-line"><span>Desconto</span><span>- R$ {{ sale.discount|floatformat:2 }}</span></div>
   <div class="print-receipt-line"><span>Frete</span><span>R$ {{ sale.freight|floatformat:2 }}</span></div>
+  {% if sale.payment_method == "cartão" %}<div class="print-receipt-line"><span>Taxa maquininha ({{ sale.card_fee_percentage|floatformat:2 }}%)</span><span>R$ {{ sale.card_fee_amount|floatformat:2 }}</span></div>{% endif %}
   <div class="print-receipt-line print-receipt-total"><span>TOTAL</span><span>R$ {{ sale.total_price|floatformat:2 }}</span></div>
   <div class="print-receipt-rule"></div>
   <div class="print-receipt-meta">Pagamento: {{ sale.get_payment_method_display }}</div>
@@ -254,6 +261,6 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="{% static 'sales/js/sale.js' %}?v=8"></script>
+<script src="{% static 'sales/js/sale.js' %}?v=10"></script>
 <script src="{% static 'sales/js/print.js' %}?v=2"></script>
 {% endblock %}

@@ -8,9 +8,18 @@
   const feedback = document.querySelector("[data-sale-item-feedback]");
   const totalQuantity = document.querySelector("[data-sale-total-quantity]");
   const subtotal = document.querySelector("[data-sale-subtotal]");
+  const discount = document.querySelector("[name='discount']");
+  const discountValue = document.querySelector("[data-sale-discount]");
+  const freight = document.querySelector("[name='freight']");
+  const freightValue = document.querySelector("[data-sale-freight]");
   const total = document.querySelector("[data-sale-total]");
   const summaryForm = document.querySelector("[data-sale-summary-form]");
   const paymentMethod = document.querySelector("[name='payment_method']");
+  const cardFeeField = document.querySelector("[data-card-fee-field]");
+  const cardFeePercentage = document.querySelector("[name='card_fee_percentage']");
+  const cardFeeRow = document.querySelector("[data-sale-card-fee-row]");
+  const cardFeeRate = document.querySelector("[data-sale-card-fee-rate]");
+  const cardFeeAmount = document.querySelector("[data-sale-card-fee]");
   const saleStatus = document.querySelector("[data-sale-status]");
   const cashReceivedField = document.querySelector("[data-cash-received-field]");
   const cashReceived = document.querySelector("[name='cash_received']");
@@ -64,16 +73,23 @@
   function updateSaleTotals(sale) {
     totalQuantity.textContent = sale.total_quantity;
     subtotal.textContent = sale.subtotal;
-    total.textContent = sale.total_price;
-    if (paymentMethod && cashReceivedField && cashReceived && changeRow) updateChange();
+    updateCardFeePreview();
   }
 
   function parseMoney(value) {
-    return Number.parseFloat(String(value || "0").replace(",", ".")) || 0;
+    const normalized = String(value || "0").replace(/[^\d,.-]/g, "");
+    if (normalized.lastIndexOf(",") > normalized.lastIndexOf(".")) {
+      return Number.parseFloat(normalized.replace(/\./g, "").replace(",", ".")) || 0;
+    }
+    return Number.parseFloat(normalized.replace(/,/g, "")) || 0;
   }
 
   function formatMoney(value) {
     return `R$ ${value.toFixed(2).replace(".", ",")}`;
+  }
+
+  function moneyToCents(value) {
+    return Math.round(parseMoney(value) * 100);
   }
 
   function updateChange() {
@@ -87,6 +103,26 @@
 
     const change = Math.max(0, parseMoney(cashReceived.value) - parseMoney(total.textContent.replace("R$", "")));
     changeValue.textContent = formatMoney(change);
+  }
+
+  function updateCardFeePreview() {
+    const isCard = paymentMethod.value === "cartão";
+    const subtotalCents = moneyToCents(subtotal.textContent.replace("R$", ""));
+    const feePercentageHundredths = Math.round(parseMoney(cardFeePercentage.value) * 100);
+    const feeCents = isCard
+      ? Math.floor((subtotalCents * feePercentageHundredths) / 10000 + 0.5)
+      : 0;
+    const discountCents = moneyToCents(discount.value);
+    const freightCents = moneyToCents(freight.value);
+
+    cardFeeField.classList.toggle("hidden", !isCard);
+    cardFeeRow.classList.toggle("hidden", !isCard);
+    cardFeeAmount.textContent = formatMoney(feeCents / 100);
+    cardFeeRate.textContent = cardFeePercentage.value || "0";
+    discountValue.textContent = `- ${formatMoney(discountCents / 100)}`;
+    freightValue.textContent = formatMoney(freightCents / 100);
+    total.textContent = formatMoney((subtotalCents - discountCents + freightCents + feeCents) / 100);
+    if (cashReceivedField && cashReceived && changeRow) updateChange();
   }
 
   function updatePaymentStatus() {
@@ -363,13 +399,20 @@
     });
   }
 
-  if (paymentMethod && cashReceivedField && cashReceived && changeRow) {
+  if (paymentMethod && cardFeeField && cardFeePercentage && cardFeeRow) {
     paymentMethod.addEventListener("change", function () {
-      updateChange();
+      updateCardFeePreview();
       updatePaymentStatus();
     });
+    cardFeePercentage.addEventListener("input", updateCardFeePreview);
+    discount.addEventListener("input", updateCardFeePreview);
+    freight.addEventListener("input", updateCardFeePreview);
+    updateCardFeePreview();
+    updatePaymentStatus();
+  }
+
+  if (cashReceivedField && cashReceived && changeRow) {
     cashReceived.addEventListener("input", updateChange);
     updateChange();
-    updatePaymentStatus();
   }
 })();

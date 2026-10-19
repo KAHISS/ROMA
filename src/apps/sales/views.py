@@ -2,6 +2,8 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from django.utils import timezone
+from urllib.parse import urlencode
 import environ
 
 from apps.inventory.models import Product
@@ -33,7 +35,12 @@ def sales_list(request):
             delete_sale(sale_id)
         except Sale.DoesNotExist:
             pass
-        return redirect("sales:list_sales")
+        today = timezone.localdate().isoformat()
+        query = urlencode({
+            "created_at_after": today,
+            "created_at_before": today,
+        })
+        return redirect(f"{reverse('sales:list_sales')}?{query}")
 
     context = get_sales_list_context(request, PER_PAGE)
     context.update({
@@ -117,6 +124,7 @@ def add_sale_item(request, sale_id):
         "sale": {
             "total_quantity": sale.total_quantity,
             "subtotal": f"R$ {sale.subtotal:.2f}".replace(".", ","),
+            "card_fee": f"R$ {sale.card_fee_amount:.2f}".replace(".", ","),
             "total_price": f"R$ {sale.total_price:.2f}".replace(".", ","),
         },
     })
@@ -169,6 +177,7 @@ def add_sale_product_manually(request, sale_id):
         "sale": {
             "total_quantity": sale.total_quantity,
             "subtotal": f"R$ {sale.subtotal:.2f}".replace(".", ","),
+            "card_fee": f"R$ {sale.card_fee_amount:.2f}".replace(".", ","),
             "total_price": f"R$ {sale.total_price:.2f}".replace(".", ","),
         },
     })
@@ -206,6 +215,7 @@ def update_sale_item_quantity(request, sale_id, item_id):
         "sale": {
             "total_quantity": sale.total_quantity,
             "subtotal": f"R$ {sale.subtotal:.2f}".replace(".", ","),
+            "card_fee": f"R$ {sale.card_fee_amount:.2f}".replace(".", ","),
             "total_price": f"R$ {sale.total_price:.2f}".replace(".", ","),
         },
     })
@@ -227,6 +237,7 @@ def update_sale_summary_view(request, sale_id):
     return JsonResponse({
         "sale": {
             "subtotal": f"R$ {updated_sale.subtotal:.2f}".replace(".", ","),
+            "card_fee": f"R$ {updated_sale.card_fee_amount:.2f}".replace(".", ","),
             "total_price": f"R$ {updated_sale.total_price:.2f}".replace(".", ","),
             "discount": f"R$ {updated_sale.discount:.2f}".replace(".", ","),
             "freight": f"R$ {updated_sale.freight:.2f}".replace(".", ","),

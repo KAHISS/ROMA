@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from django.db.models import DecimalField, ExpressionWrapper, F, Sum, Value
+from django.db.models import Case, DecimalField, ExpressionWrapper, F, Sum, Value, When
 from django.db.models.functions import Coalesce
 
 from apps.inventory.filters import ProductFilter
@@ -19,9 +19,28 @@ def get_inventory_list_context(request, per_page=10):
     queryset = Product.objects.all().order_by("-created_at")
 
     product_filter = ProductFilter(request.GET, queryset=queryset)
-    filtered_products = product_filter.qs
-
     monetary_field = DecimalField(max_digits=20, decimal_places=2)
+    total_profit = ExpressionWrapper(
+        (F("price") - F("cust")) * F("quantity"),
+        output_field=monetary_field,
+    )
+    percentage_field = DecimalField(max_digits=8, decimal_places=2)
+    product_profit_percentage = Case(
+        When(
+            price__gt=0,
+            then=ExpressionWrapper(
+                (F("price") - F("cust")) * Value(Decimal("100.00")) / F("price"),
+                output_field=percentage_field,
+            ),
+        ),
+        default=Value(Decimal("0.00"), output_field=percentage_field),
+        output_field=percentage_field,
+    )
+    filtered_products = product_filter.qs.annotate(
+        total_profit=total_profit,
+        profit_percentage=product_profit_percentage,
+    )
+
     inventory_cost = ExpressionWrapper(
         F("cust") * F("quantity"),
         output_field=monetary_field,
@@ -43,7 +62,18 @@ def get_inventory_list_context(request, per_page=10):
             Value(Decimal("0.00")),
             output_field=monetary_field,
         ),
+        total_profit_potential=Coalesce(
+            Sum(total_profit),
+            Value(Decimal("0.00")),
+            output_field=monetary_field,
+        ),
     )
+    total_profit_percentage = Decimal("0.00")
+    if totals["total_sales_potential"] > 0:
+        total_profit_percentage = (
+            totals["total_profit_potential"] * Decimal("100.00")
+            / totals["total_sales_potential"]
+        ).quantize(Decimal("0.01"))
 
     products, pagination_range = make_pagination(
         request, filtered_products, per_page
@@ -64,6 +94,8 @@ def get_inventory_list_context(request, per_page=10):
         "total_units": totals["total_units"],
         "total_inventory_cost": format_brl(totals["total_inventory_cost"]),
         "total_sales_potential": format_brl(totals["total_sales_potential"]),
+        "total_profit_potential": format_brl(totals["total_profit_potential"]),
+        "total_profit_percentage": total_profit_percentage,
     }
 
 
