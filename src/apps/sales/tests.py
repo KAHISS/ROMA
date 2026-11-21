@@ -106,6 +106,25 @@ class SaleStockTests(TestCase):
 		self.assertEqual(first_response.context["sale"].pk, second_response.context["sale"].pk)
 		self.assertEqual(Sale.objects.filter(seller=self.user).count(), 1)
 
+	def test_sales_list_can_filter_by_payment_method(self):
+		self.client.force_login(self.user)
+		self.sale.payment_method = Sale.PaymentMethod.CASH
+		self.sale.save(update_fields=["payment_method"])
+		card_sale = Sale.objects.create(
+			seller=self.user,
+			payment_method=Sale.PaymentMethod.CARD,
+		)
+
+		response = self.client.get(
+			reverse("sales:list_sales"),
+			{"payment_method": Sale.PaymentMethod.CARD},
+		)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(list(response.context["sales"]), [card_sale])
+		self.assertContains(response, 'id="id_payment_method"')
+		self.assertContains(response, 'value="cartão" selected')
+
 	def test_cannot_add_product_without_stock(self):
 		self.product.quantity = 0
 		self.product.save(update_fields=["quantity"])

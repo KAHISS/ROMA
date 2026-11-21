@@ -65,7 +65,7 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_160px_160px_160px_auto]">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_160px_160px_160px_160px_auto]">
           <div>
             <label for="id_search" class="mb-1.5 block text-[12px] font-medium text-gray-700 dark:text-neutral-200">Buscar venda</label>
             <div class="relative">
@@ -83,6 +83,16 @@
               <option value="">Todos os status</option>
               <option value="pago" {% if filter.form.status.value == "pago" %}selected{% endif %}>Pagas</option>
               <option value="pendente" {% if filter.form.status.value == "pendente" %}selected{% endif %}>Pendentes</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="id_payment_method" class="mb-1.5 block text-[12px] font-medium text-gray-700 dark:text-neutral-200">Método de pagamento</label>
+            <select id="id_payment_method" name="payment_method" class="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
+              <option value="">Todos os métodos</option>
+              {% for value, label in filter.form.payment_method.field.choices %}
+                {% if value %}<option value="{{ value }}" {% if filter.form.payment_method.value == value %}selected{% endif %}>{{ label }}</option>{% endif %}
+              {% endfor %}
             </select>
           </div>
 

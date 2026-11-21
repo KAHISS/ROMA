@@ -3,8 +3,11 @@ import environ
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
+from urllib.parse import urlencode
 
 from apps.users.forms import LoginForm, UserForm, UserPasswordForm, UserUpdateForm
 from apps.users.services import (
@@ -90,9 +93,15 @@ def user_list(request):
 def login_view(request):
     """Render and process the application login page."""
     next_url = request.POST.get("next") or request.GET.get("next")
+    today = timezone.localdate().isoformat()
+    sales_query = urlencode({
+        'created_at_after': today,
+        'created_at_before': today,
+    })
+    sales_url = f"{reverse('sales:list_sales')}?{sales_query}"
 
     if request.user.is_authenticated:
-        return redirect("users:list_users")
+        return redirect(sales_url)
 
     form = LoginForm(request, data=request.POST or None)
 
@@ -106,7 +115,7 @@ def login_view(request):
             ):
                 return redirect(next_url)
 
-            return redirect("users:list_users")
+            return redirect(sales_url)
 
     return render(
         request,
